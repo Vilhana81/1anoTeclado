@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jogo do Teclado – 1.º Ano Champagnat</title>
+  <meta name="description" content="Jogo de teclado para 1.º ano – 60 caracteres (minúsculas + números) com espaço entre cada. Contagem de letras/minuto e precisão. Externato Champagnat." />
+  <style>
+    :root{
+      --green:#1f7a3a;
+      --green-dark:#156031;
+      --bg:#f5fff8;
+      --card:#ffffff;
+      --ink:#10221a;
+      --muted:#4a6a5a;
+      --danger:#ef476f;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;color:var(--ink);background:var(--bg)}
+    .wrap{max-width:980px;margin:24px auto;padding:16px}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.06);padding:20px}
+    header.brand{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .logo img{width:40px;height:40px;border-radius:10px;object-fit:cover;border:2px solid #e4f2e8}
+    .title h1{margin:0;font-size:clamp(20px,3.2vw,30px);}
+    .title small{display:block;color:var(--muted);margin-top:2px}
+    .hr{height:4px;background:linear-gradient(90deg,var(--green),var(--green-dark));border-radius:999px;margin:10px 0 16px}
+    h2{margin:0 0 10px}
+    .grid{display:grid;gap:16px;grid-template-columns:1fr}
+    @media(min-width:860px){.grid{grid-template-columns:1fr 1fr}}
+    .panel{background:#f0fbf3;border:2px dashed #ccefd7;border-radius:14px;padding:14px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+    button{cursor:pointer;border:0;border-radius:12px;padding:12px 16px;font-weight:800;letter-spacing:.2px}
+    .start{background:var(--green);color:white}
+    .stop{background:var(--danger);color:white}
+    .reset{background:#e7f5eb;color:var(--green-dark);border:1px solid #cfe9d5}
+    .duration{appearance:none;border:1px solid #cfe9d5;border-radius:10px;padding:10px 12px;background:white}
+    textarea{width:100%;min-height:140px;border:2px solid #dcefe3;border-radius:14px;padding:12px;font-size:20px;line-height:1.6;resize:vertical}
+    textarea[disabled]{background:#f3fbf6}
+    .target{font-size:22px;line-height:1.8;background:#fff;border:2px solid #dcefe3;border-radius:14px;padding:14px}
+    .target .done{background:rgba(31,122,58,.10)}
+    .target .next{background:rgba(31,122,58,.18);border-bottom:3px solid var(--green)}
+    .target .todo{opacity:.9}
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .stat{flex:1 1 160px;background:#f7fcf9;border:1px solid #e6f3ea;border-radius:12px;padding:12px;text-align:center}
+    .stat .label{font-size:12px;color:var(--muted)}
+    .stat .value{font-size:26px;font-weight:800}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#e7f5eb;color:var(--green-dark);font-weight:800;border:1px solid #cfe9d5}
+    .result{font-size:18px;margin-top:8px}
+    .progress{height:10px;background:#eaf6ee;border-radius:999px;overflow:hidden;margin-top:8px}
+    .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--green-dark));transition:width .2s}
+    footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header class="brand">
+        <div class="logo"><img alt="Logótipo Externato Champagnat" src="data:image/jpeg;base64,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"></div>
+        <div class="title">
+          <h1>Jogo do Teclado – 1.º Ano Champagnat</h1>
+          <small>Externato Champagnat · treino de 60 caracteres (minúsculas + números)</small>
+        </div>
+      </header>
+      <div class="hr" aria-hidden="true"></div>
+
+      <div class="grid">
+        <section class="panel" aria-labelledby="sec-config">
+          <h2 id="sec-config">⏱️ Tempo</h2>
+          <div class="controls" role="group" aria-label="Controlos do jogo">
+            <label for="dur" class="sr-only">Duração</label>
+            <select id="dur" class="duration" title="Escolher duração">
+              <option value="30">30 segundos</option>
+              <option value="60" selected>1 minuto</option>
+              <option value="90">1 min 30 s</option>
+            </select>
+            <button class="start" id="btnStart">Começar (gerar 60)</button>
+            <button class="stop" id="btnStop" disabled>Parar</button>
+            <button class="reset" id="btnReset" disabled>Recomeçar (novo 60)</button>
+          </div>
+          <div class="stats" aria-live="polite">
+            <div class="stat"><div class="label">Tempo</div><div class="value" id="time">60s</div></div>
+            <div class="stat"><div class="label">Corretos (sem espaços)</div><div class="value" id="correct">0</div></div>
+            <div class="stat"><div class="label">Letras / Min</div><div class="value" id="lpm">0</div></div>
+            <div class="stat"><div class="label">Precisão</div><div class="value" id="acc">0%</div></div>
+          </div>
+        </section>
+
+        <section>
+          <label class="badge">Sequência (60)</label>
+          <div id="target" class="target" aria-live="polite"></div>
+          <div class="progress" aria-hidden="true"><div id="progbar"></div></div>
+          <label for="area" class="badge" style="margin-top:12px;display:inline-block">Área de escrita</label>
+          <textarea id="area" placeholder="Copia a sequência acima, incluindo os espaços simples entre cada caractere…" disabled></textarea>
+          <p class="result" id="result"></p>
+        </section>
+      </div>
+
+      <footer>© Externato Champagnat — utilização pedagógica</footer>
+    </div>
+  </div>
+
+  <script>
+    const durSel = document.getElementById('dur');
+    const t = document.getElementById('time');
+    const correctEl = document.getElementById('correct');
+    const lpmEl = document.getElementById('lpm');
+    const accEl = document.getElementById('acc');
+    const res = document.getElementById('result');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    const btnReset = document.getElementById('btnReset');
+    const area = document.getElementById('area');
+    const targetBox = document.getElementById('target');
+    const progbar = document.getElementById('progbar');
+
+    let timer = null;
+    let remaining = 60;
+    let startedAt = null;
+    let target = '';
+    let correctPrefix = 0;
+
+    const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+    function generate60(){
+      const chars = [];
+      for (let i=0;i<60;i++){ chars.push(ALPHABET[Math.floor(Math.random()*ALPHABET.length)]); }
+      return chars.join(' ');
+    }
+
+    function escapeHTML(str){ return str.replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+    function renderTarget(progress){
+      const done = target.slice(0, progress);
+      const next = target.slice(progress, progress+1);
+      const todo = target.slice(progress+1);
+      targetBox.innerHTML =
+        '<span class="done">'+ escapeHTML(done) +'</span>' +
+        (next ? '<span class="next">'+ escapeHTML(next) +'</span>' : '') +
+        '<span class="todo">'+ escapeHTML(todo) +'</span>';
+      const pct = target.length ? Math.min(100, Math.round((progress/target.length)*100)) : 0;
+      progbar.style.width = pct + '%';
+    }
+
+    function nonSpaceCount(str){ return (str.match(/[^\s]/g) || []).length; }
+
+    function updateStats(){
+      const typed = area.value;
+      let i=0;
+      while (i < typed.length && i < target.length && typed[i] === target[i]){ i++; }
+      correctPrefix = i;
+
+      const correctNoSpace = nonSpaceCount(target.slice(0, correctPrefix));
+      correctEl.textContent = String(correctNoSpace);
+
+      const elapsed = startedAt ? (Date.now() - startedAt)/1000 : 0;
+      const minutes = elapsed > 0 ? (elapsed/60) : 1;
+      const lpm = Math.round(correctNoSpace / minutes);
+      lpmEl.textContent = String(lpm);
+
+      const acc = typed.length ? Math.round((correctPrefix/typed.length)*100) : 0;
+      accEl.textContent = acc + '%';
+
+      renderTarget(correctPrefix);
+    }
+
+    function tick(){
+      remaining--;
+      t.textContent = remaining + 's';
+      updateStats();
+      if (remaining <= 0){ stopGame(); }
+    }
+
+    function startGame(){
+      target = generate60();
+      remaining = parseInt(durSel.value,10);
+      t.textContent = remaining + 's';
+      area.disabled = false;
+      area.value = '';
+      area.focus();
+      res.textContent = '';
+      correctEl.textContent = '0';
+      lpmEl.textContent = '0';
+      accEl.textContent = '0%';
+      startedAt = Date.now();
+      correctPrefix = 0;
+      renderTarget(0);
+
+      btnStart.disabled = true;
+      btnStop.disabled = false;
+      btnReset.disabled = false;
+      durSel.disabled = true;
+
+      if (timer) clearInterval(timer);
+      timer = setInterval(tick, 1000);
+    }
+
+    function stopGame(){
+      if (timer){ clearInterval(timer); timer = null; }
+      area.disabled = true;
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+      durSel.disabled = false;
+      updateStats();
+
+      const durationSec = parseInt(durSel.value,10);
+      const correctNoSpace = nonSpaceCount(target.slice(0, correctPrefix));
+      const lpm = Math.round(correctNoSpace * 60 / durationSec);
+      const acc = area.value.length ? Math.round((correctPrefix/area.value.length)*100) : 0;
+
+      res.textContent = 'Corretos (sem espaços): ' + correctNoSpace + ' | Tempo: ' + durationSec + 's → ' + lpm + ' letras/min | Precisão: ' + acc + '%';
+    }
+
+    function resetGame(){
+      if (timer){ clearInterval(timer); timer=null; }
+      area.value = '';
+      area.disabled = true;
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+      btnReset.disabled = true;
+      durSel.disabled = false;
+      correctEl.textContent = '0';
+      lpmEl.textContent = '0';
+      accEl.textContent = '0%';
+      res.textContent = '';
+      remaining = parseInt(durSel.value,10);
+      t.textContent = remaining + 's';
+      target = generate60();
+      renderTarget(0);
+    }
+
+    area.addEventListener('input', updateStats);
+    btnStart.addEventListener('click', startGame);
+    btnStop.addEventListener('click', stopGame);
+    btnReset.addEventListener('click', resetGame);
+
+    resetGame();
+  </script>
+</body>
+</html>
